@@ -45,17 +45,17 @@ Open Shortest Path First (OSPF)
 
 ## 4. Experiment Records and Result Analysis
 ### 4.1 Records
-### 10. Static Routing
+#### 10. Static Routing
 ![](../Assets/img/42AE29944A7844713EAF408DE029FBCC.png)
 ![](../Assets/img/9582388E7A8D95696F4B16AFBB0A81E1.png)
 ![](../Assets/img/CE4D5FA247AADE8919B46508C5541614.png)
 
-### 11. Routing Information Protocol (RIP)
+#### 11. Routing Information Protocol (RIP)
 ![](../Assets/img/072F77C8F63D823BDE5C2937336FF639.png)
 ![](../Assets/img/2FCC9D3EFA911A61D3DE4C0BACB485F7.png)
 ![](../Assets/img/6C3A9D34A677C35E7FF950559B9D2E38.png)
 
-### 12. Open Shortest Path First (OSPF)
+#### 12. Open Shortest Path First (OSPF)
 ![](../Assets/img/FED281016BCC8D7840BECA4210B27B34.png)
 ![](../Assets/img/90C590FF0F59D51DDB3EC6907E9FA927.png)
 ![](../Assets/img/D508E02FB5544E6D18DE69D4C8AD4784.png)
