@@ -26,7 +26,8 @@ if __name__ == "__main__":
     ip = IP if IP else input("ip = ")
     port = PORT if PORT >= 0 else int(input("port = "))
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind((ip, port)), server_socket.listen(MAX_WAITING_CONNECTIONS)
+    server_socket.bind((ip, port))
+    server_socket.listen(MAX_WAITING_CONNECTIONS)
     print(f"Port: {server_socket.getsockname()[1]}")
     while True:
         thread = threading.Thread(target=handle_client, args=server_socket.accept())
