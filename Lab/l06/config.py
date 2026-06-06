@@ -1,0 +1,2 @@
+CHARSET = "utf-8"
+HEADER_FORMAT = "!I"
