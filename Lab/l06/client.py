@@ -57,7 +57,7 @@ class FileClient:
         return False
 
     @staticmethod
-    def lpwd():
+    def lpwd(_):
         print(os.getcwd())
         return True
 
@@ -69,7 +69,7 @@ class FileClient:
         return False
 
     @staticmethod
-    def lcd(tar_dir):
+    def lcd(_, tar_dir):
         tar_dir = tar_dir if tar_dir else os.path.expanduser("~")
         if os.path.isdir(tar_dir):
             os.chdir(tar_dir)

@@ -1,10 +1,10 @@
 import socket
 
+from config import CHARSET, MAX_BUFFER_SIZE
+
 IP = ""
 PORT = -1
 EXIT_COMMAND = "EXIT"
-CHARSET = "utf-8"
-MAX_BUFFER_SIZE = 1024
 
 if __name__ == "__main__":
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
