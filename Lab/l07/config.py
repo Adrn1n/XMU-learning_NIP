@@ -1,0 +1,2 @@
+PORT = 110
+CHARSET = "utf-8"
