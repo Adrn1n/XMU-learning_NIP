@@ -6,7 +6,7 @@ from config import PORT, CHARSET
 
 class POP3Client:
     @staticmethod
-    def check_response(resp):
+    def __check_response(resp):
         if resp and resp.startswith("+OK"):
             return True
         else:
@@ -50,22 +50,22 @@ class POP3Client:
         self.sock.connect((socket.gethostbyname(self.host), self.port))
         welcome = self.__recv_line()
         print(f"Server: {welcome}")
-        self.alive = POP3Client.check_response(welcome)
+        self.alive = POP3Client.__check_response(welcome)
         return self.alive
 
     def login(self, name, pwd):
         resp = self.__send_cmd(f"USER {name}")
         print(f"Server: {resp}")
-        if POP3Client.check_response(resp):
+        if POP3Client.__check_response(resp):
             resp = self.__send_cmd(f"PASS {pwd}")
             print(f"Server: {resp}")
-            return POP3Client.check_response(resp)
+            return POP3Client.__check_response(resp)
         return False
 
     def stat(self):
         resp = self.__send_cmd("STAT")
         print(f"Server: {resp}")
-        if POP3Client.check_response(resp):
+        if POP3Client.__check_response(resp):
             parts = resp.split()
             return int(parts[1]), int(parts[2])
         return None
@@ -73,7 +73,7 @@ class POP3Client:
     def list(self):
         resp = self.__send_cmd("LIST")
         print(f"Server: {resp}")
-        if POP3Client.check_response(resp):
+        if POP3Client.__check_response(resp):
             res = self.__recv_multiline()
             return [tuple(map(int, line.split())) for line in res.splitlines()]
         return None
@@ -81,31 +81,31 @@ class POP3Client:
     def retr(self, n):
         resp = self.__send_cmd(f"RETR {n}")
         print(f"Server: {resp}")
-        if POP3Client.check_response(resp):
+        if POP3Client.__check_response(resp):
             return self.__recv_multiline()
         return None
 
     def dele(self, n):
         resp = self.__send_cmd(f"DELE {n}")
         print(f"Server: {resp}")
-        return POP3Client.check_response(resp)
+        return POP3Client.__check_response(resp)
 
     def rset(self):
         resp = self.__send_cmd("RSET")
         print(f"Server: {resp}")
-        return POP3Client.check_response(resp)
+        return POP3Client.__check_response(resp)
 
     def top(self, n, m):
         resp = self.__send_cmd(f"TOP {n} {m}")
         print(f"Server: {resp}")
-        if POP3Client.check_response(resp):
+        if POP3Client.__check_response(resp):
             return self.__recv_multiline()
         return None
 
     def quit(self):
         resp = self.__send_cmd("QUIT")
         print(f"Server: {resp}")
-        if POP3Client.check_response(resp):
+        if POP3Client.__check_response(resp):
             self.sock.close()
             self.alive = False
             return True
