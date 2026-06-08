@@ -38,8 +38,13 @@ QUIT 希望结束会话。如果 server 处于"处理" 状态，则现在进入"
 -->
 # Report 7
 ## 1. Experiment Name
+Network Programming III.
 
 ## 2. Experiment Tasks
+Task
+Implement a simple POP3 client using TCP protocol. The client should support the following features:
+1. Basic login and authentication functionality, with password input masked by asterisks (*).
+2. After logging in, the client should be able to view the email list, read the content of a specific email, and delete a specific email.
 
 ## 3. Experiment Environment and Tools
 - M4 MacBook Air
@@ -608,10 +613,21 @@ Server: +OK core mail
 True
 
 ```
+1. DNS Resolution and Connection Failures: When connecting to [a.com](a.com), the client calls `socket.gethostbyname()`. Since [a.com](a.com) does not have a valid POP3 record or DNS mapping in this context, the system DNS resolver fails and throws a `socket.gaierror`.
+2. The domain [pop.163.com](pop.163.com) successfully resolves to its IP address. However, the login fails with `-ERR 没授权使用pop3` (unauthorized to use POP3, it's GBK, but the configuration uses UTF-8 so the text is not displayed correctly) because the POP3 service is not enabled in the settings of that specific 163 mailbox.
+3. Successful Session Execution: The client logs in successfully. The server responds with `+OK` and automatically provides the initial mailbox statistics (7 messages, 281,652 bytes).
+4. Mailbox Statistics & Listing (`stat`, `list`): The `stat` and `list` commands query the server. The multi-line response of `LIST` is captured until the termination octet (.), parsed, and displayed cleanly.
+5. Command Argument Validation: Passing extraneous arguments to stat is caught by Python's runtime argument binder, preventing invalid commands from being sent to the server.
+6. Reading Mail (`retr`): The client sends `RETR 7`. The server responds with the full header and body of message 7, terminated by a single dot line (.), which the client strips before printing.
+7. Marking Deletion and Reverting (`dele`, `rset`): `DELE 7` marks message 7 for deletion. Subsequent `STAT` commands show only 6 messages. Sending `RSET` clears all deletion marks, restoring Message 7 to the active list.
+8. Partial Headers and Body (`top`): The command `TOP 7 3` successfully requests the server to send the headers of message 7 followed by only the first 3 lines of its body.
+9. Committing Deletions and Exiting (`quit`): After marking Message 7 for deletion and issuing QUIT, the server transitions to the UPDATE state, permanently deleting Message 7. When reconnecting, only 6 messages remain.
 
 ## 5. Problems Encountered and Solutions
 ### 5.1 Problems
-None.
+1. Blocking Sockets and Infinite Waiting on Errors: If the user inputs a malformed command or if the server encounters an unexpected state and fails to return data, the socket read function (`__recv_line()`) blocks indefinitely. Because it reads byte-by-byte (`self.sock.recv(1)`) without a timeout, the client application hangs, forcing the user to manually terminate the program.
+2. Unreadable Raw Email Content: When using the `RETR` or `TOP` commands, the retrieved email content is printed as raw data directly from the socket stream. Because it includes MIME headers, boundary tags, and encoding schemes (such as Base** or Quoted-Printable) with various character sets (e.g., GBK, UTF-8), the raw text is highly unreadable for human users.
 
 ### 5.2 Solutions
-None.
+1. Manual Interruption: To recover from an infinite wait state caused by socket blocking, the program must be manually terminated using a keyboard interrupt (e.g., Ctrl+C or closing the terminal session).
+2. Left as Raw Output: Since the primary goal of this experiment is to learn basic TCP socket operations and interact with the POP3 protocol at the transport layer, implementing a full MIME email parser (such as Python's email package) to decode multi-part body segments and transfer encodings was skipped. The raw output is left as-is, displaying exactly what the server transmits.
