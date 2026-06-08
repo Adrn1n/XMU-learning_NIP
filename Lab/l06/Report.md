@@ -13,8 +13,18 @@
 -->
 # Report 6
 ## 1. Experiment Name
+TCP-Based Multi-Client File Server and Client Application.
 
 ## 2. Experiment Tasks
+- Design and implement a simple file server and client using the TCP protocol. The application must support the following commands:
+    1. `list`: List the files and directories in the remote server's current directory (directories must be enclosed in square brackets [...] to distinguish them from files)
+    2. `pwd`: View the remote current directory path
+    3. `lpwd`: View the local current directory path
+    4. `cd xxxxx`: Change the remote current directory to xxxxx
+    5. `lcd xxxxx`: Change the local current directory to xxxxx
+    6. `down xxxxx`: Download the file xxxxx from the remote server's current directory to the client's current directory
+    7. `exit`: Disconnect from the server and terminate the client application
+- Note: The above descriptions represent the expected behavior of each command under normal conditions. You should also handle various error scenarios to ensure a robust application. Consider common file operations and FTP client behaviors as references for implementing error handling and user feedback mechanisms.
 
 ## 3. Experiment Environment and Tools
 - M4 MacBook Air
@@ -394,6 +404,141 @@
     ```
 
 ### 4.2 Analysis
+- Server:
+    ```text
+    Port: 54489
+    New connection from 127.0.0.1:54532
+    New connection from 127.0.0.1:54561
+    Connection from 127.0.0.1:54532 closed.
+    Connection from 127.0.0.1:54561 closed.
+
+    ```
+    - The server binds dynamically to port 54489 and listens for incoming connections.
+    - It successfully establishes concurrent connections with Client 1 (port 54532) and Client 2 (port 54561) using threads.
+    - When clients send the exit command, the threads clean up connection resources and terminate safely.
+- Client1:
+    ```text
+    ip = 127.0.0.1
+    port = 54489
+    Command (type "help" for available commands) = help
+    list: List files and directories in the current directory on the server (directories are enclosed in square brackets)
+    pwd: Show the current directory on the server
+    lpwd: Show the current directory on the client
+    cd <directory>: Change the current directory on the server
+    lcd <directory>: Change the current directory on the client
+    down <filename>: Download a file from the server
+    exit: Disconnect from the server and exit
+    Command (type "help" for available commands) = a
+    Unknown command
+    Command (type "help" for available commands) = list l06
+    .DS_Store
+    [l03]
+    [l04]
+    [l05]
+    [l02]
+    [.vscode]
+    [Assets]
+    [l07]
+    [l01]
+    [l06]
+    Command (type "help" for available commands) = pwd
+    /
+    Command (type "help" for available commands) = lpwd l06
+    /Users/Shared/Files/XMU/Learning/NIP/Lab
+    Command (type "help" for available commands) = cd l06
+    Command (type "help" for available commands) = pwd
+    /l06
+    Command (type "help" for available commands) = cd 
+    Command (type "help" for available commands) = pwd
+    /
+    Command (type "help" for available commands) = lcd l06
+    Command (type "help" for available commands) = lpwd
+    /Users/Shared/Files/XMU/Learning/NIP/Lab/l06
+    Command (type "help" for available commands) = cd a
+    {'stats': 'err', 'info': 'Directory not found: /Users/Shared/Files/XMU/Learning/NIP/Lab/a'}
+    Command (type "help" for available commands) = pwd
+    /
+    Command (type "help" for available commands) = cd l06/client.py
+    {'stats': 'err', 'info': 'Directory not found: /Users/Shared/Files/XMU/Learning/NIP/Lab/l06/client.py'}
+    Command (type "help" for available commands) = pwd 
+    /
+    Command (type "help" for available commands) = lcd client.py
+    Directory not found: client.py
+    Command (type "help" for available commands) = lpwd
+    /Users/Shared/Files/XMU/Learning/NIP/Lab/l06
+    Command (type "help" for available commands) = down l06/client.py
+    Command (type "help" for available commands) = down ../Lab/l06/server.py
+    Command (type "help" for available commands) = down ../../HW/0318.md
+    {'stats': 'perm_denied', 'info': 'Cannot access outside of root directory'}
+    Command (type "help" for available commands) = down l06
+    {'stats': 'err', 'info': 'File not found: /Users/Shared/Files/XMU/Learning/NIP/Lab/l06'}
+    Command (type "help" for available commands) = exit
+
+    ```
+    - Help & Unknown Commands: Command parser handles invalid input
+    - Listing (`list`): Correctly formats and identifies directories using brackets
+    - Navigation (`cd`/`pwd`): Successfully navigates remote directories. The remote root directory is virtualized as `/`
+    - Directory Traversal Protection: Trying to download files outside the server root directory triggers a `perm_denied` response from the server, demonstrating path safety checks
+    - Error Handling: Attempting to `cd` into a file (`client.py`) returns a descriptive error dictionary from the server
+- Client2:
+    ```text
+    ip = 127.0.0.1
+    port = 54489
+    Command (type "help" for available commands) = 
+    Unknown command
+    Command (type "help" for available commands) = list
+    .DS_Store
+    [l03]
+    [l04]
+    [l05]
+    [l02]
+    [.vscode]
+    [Assets]
+    [l07]
+    [l01]
+    [l06]
+    Command (type "help" for available commands) = pwd l06
+    /
+    Command (type "help" for available commands) = lpwd
+    /Users/Shared/Files/XMU/Learning/NIP/Lab
+    Command (type "help" for available commands) = cd l06
+    Command (type "help" for available commands) = pwd
+    /l06
+    Command (type "help" for available commands) = list
+    server.py
+    .DS_Store
+    config.py
+    Report.md
+    client.py
+    tools.py
+    [__pycache__]
+    Command (type "help" for available commands) = lcd
+    Command (type "help" for available commands) = lpwd
+    /Users/b
+    Command (type "help" for available commands) = cd a
+    {'stats': 'err', 'info': 'Directory not found: /Users/Shared/Files/XMU/Learning/NIP/Lab/l06/a'}
+    Command (type "help" for available commands) = lwd a
+    Unknown command
+    Command (type "help" for available commands) = lcd a
+    Directory not found: a
+    Command (type "help" for available commands) = lpwd
+    /Users/b
+    Command (type "help" for available commands) = cd ../..
+    {'stats': 'perm_denied', 'info': 'Cannot access outside of root directory'}
+    Command (type "help" for available commands) = pwd
+    /l06
+    Command (type "help" for available commands) = down client.py
+    Command (type "help" for available commands) = down a  
+    {'stats': 'err', 'info': 'File not found: /Users/Shared/Files/XMU/Learning/NIP/Lab/l06/a'}
+    Command (type "help" for available commands) = down 
+    {'stats': 'err', 'info': 'Missing <f_name> parameter'}
+    Command (type "help" for available commands) = exit
+
+    ```
+    - Concurrent Operation: Client 2 operates independently on the server while Client 1 is active, demonstrating the multi-threaded concurrent design of the server
+    - Local Directory Navigation (`lcd` / `lpwd`): Client 2 executes `lcd` with no arguments, which defaults to the user's home directory (`/Users/b`), and verifies it with `lpwd`
+    - Path Security Verification: Client 2 attempts to navigate outside the remote root folder using `cd ../..`; the server blocks the request with `perm_denied`
+    - Missing Parameters: Command down executed without arguments is handled gracefully by returning a structured error message (Missing `<f_name>` parameter)
 
 ## 5. Problems Encountered and Solutions
 ### 5.1 Problems
