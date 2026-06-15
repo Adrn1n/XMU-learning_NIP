@@ -1,4 +1,10 @@
 <!--
+Packet Tracer基本使用
+
+简介
+Packet Tracer官网：https://www.packettracernetwork.com/
+简要功能介绍：l03b-Packet Tracer.pdf
+
 任务一
 
 1. 建立简单拓扑图；
