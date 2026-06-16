@@ -409,5 +409,9 @@ URL = http://mt.xmu.edu.cn/xmuslt/
 
 ## 5. Problems Encountered and Solutions
 ### 5.1 Problems
+- No suitable website for crawling
+- Depth 3 will crawl a large number of web pages
 
 ### 5.2 Solutions
+- Use a project website of the teacher, which is relatively simple and safe
+- Shorten the timeout time
