@@ -407,6 +407,21 @@ URL = http://mt.xmu.edu.cn/xmuslt/
 (base) b@bogon Lab % 
 ```
 
+The execution log demonstrates that the multi-threaded web crawler successfully executed according to the design specifications. The key observations from the run are as follows:
+1. Breadth-First Crawling & Depth Control:
+    - The crawler started at Depth 0 (http://mt.xmu.edu.cn/xmuslt/), extracted links, and recursively crawled up to Depth 3.
+    - The recursion strictly terminated at Depth 3 (e.g., external links like Google, GitHub, and ArXiv were fetched but did not trigger further link extraction), verifying the depth-limit logic.
+2. Multi-threaded Concurrency:
+    - The interleaved output of [CRAWLING] and [SAVED] logs confirms that the 25 worker threads successfully fetched pages concurrently from the shared `queue.Queue`.
+3. Page Storage & URL Normalization:
+    - Pages were successfully mapped to the local directory structure (`downs/`).
+    - URLs lacking a distinct filename (e.g., http://nlp.xmu.edu.cn/) were correctly saved using their MD5 hashes as filenames with a .no_ext suffix, preventing name collisions..
+4. Error Handling and Robustness:
+    - Protocol Filtering: Non-HTTP links (e.g., javascript:... and mailto:...) were gracefully caught by the try-except block, preventing program crashes.
+    - Timeouts and Network Blocks: Setting timeout=0.5 caused numerous urlopen error timed out errors, particularly at Depth 3 on slower external sites. Some servers also rejected requests with 403 Forbidden (likely due to the lack of a realistic User-Agent header) or 404 Not Found.
+    - Encoding Issues: An ASCII encoding exception occurred when encountering unquoted Chinese characters in a URL, suggesting a need for proper URL encoding (urllib.parse.quote) before fetching.
+
+
 ## 5. Problems Encountered and Solutions
 ### 5.1 Problems
 - No suitable website for crawling
