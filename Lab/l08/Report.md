@@ -412,7 +412,7 @@ The execution log demonstrates that the multi-threaded web crawler successfully 
     - The crawler started at Depth 0 (http://mt.xmu.edu.cn/xmuslt/), extracted links, and recursively crawled up to Depth 3.
     - The recursion strictly terminated at Depth 3 (e.g., external links like Google, GitHub, and ArXiv were fetched but did not trigger further link extraction), verifying the depth-limit logic.
 2. Multi-threaded Concurrency:
-    - The interleaved output of [CRAWLING] and [SAVED] logs confirms that the 25 worker threads successfully fetched pages concurrently from the shared `queue.Queue`.
+    - The interleaved output of `[CRAWLING]` and `[SAVED]` logs confirms that the 25 worker threads successfully fetched pages concurrently from the shared `queue.Queue`.
 3. Page Storage & URL Normalization:
     - Pages were successfully mapped to the local directory structure (`downs/`).
     - URLs lacking a distinct filename (e.g., http://nlp.xmu.edu.cn/) were correctly saved using their MD5 hashes as filenames with a .no_ext suffix, preventing name collisions..
